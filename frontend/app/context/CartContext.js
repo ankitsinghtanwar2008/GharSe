@@ -7,31 +7,55 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
 
+  // ✅ ADD TO CART
   const addToCart = (food) => {
-    const existingItem = cartItems.find((item) => item.id === food.id);
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.id === food.id);
 
-    if (existingItem) {
-      setCartItems(
-        cartItems.map((item) =>
+      if (existingItem) {
+        return prevItems.map((item) =>
           item.id === food.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
-        )
-      );
-    } else {
-      setCartItems([...cartItems, { ...food, quantity: 1 }]);
-    }
+        );
+      }
+
+      return [...prevItems, { ...food, quantity: 1 }];
+    });
   };
 
+  // ✅ UPDATE QUANTITY (+ / -)
+  const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) return; // 1 se neeche nahi jayega
+
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+  };
+
+  // ✅ REMOVE ITEM
   const removeFromCart = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.id !== id)
+    );
   };
 
+  // ✅ CLEAR CART
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  // ✅ TOTAL ITEM COUNT
   const cartCount = cartItems.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
+  // ✅ TOTAL PRICE
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -42,7 +66,9 @@ export function CartProvider({ children }) {
       value={{
         cartItems,
         addToCart,
+        updateQuantity,
         removeFromCart,
+        clearCart,
         cartCount,
         totalPrice,
       }}

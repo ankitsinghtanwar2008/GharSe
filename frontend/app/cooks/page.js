@@ -1,18 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import ParticleBackground from "@/components/ParticleBackground";
 
 export default function CooksPage() {
   const [cooks, setCooks] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetchCooks();
   }, []);
-
-  const router = useRouter();
 
   const fetchCooks = async () => {
     const res = await fetch("http://localhost:5000/api/cooks");
@@ -26,7 +25,7 @@ export default function CooksPage() {
       method: "DELETE",
     });
 
-    setCooks(cooks.filter((cook) => cook._id !== id));
+    setCooks((prev) => prev.filter((cook) => cook._id !== id));
   };
 
   const filteredCooks = cooks.filter((cook) =>
@@ -34,50 +33,64 @@ export default function CooksPage() {
   );
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>👨‍🍳 Meet Our Chefs</h1>
+    <div className="relative min-h-screen overflow-hidden bg-black text-white px-8 py-12">
+      
+      {/* 🔥 3D PARTICLES BACKGROUND */}
+      <ParticleBackground />
 
-      <input
-        type="text"
-        placeholder="Search cook..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={styles.search}
-      />
+      <h1 className="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        👨‍🍳 Meet Our Chefs
+      </h1>
+
+      <div className="flex justify-center mb-12">
+        <input
+          type="text"
+          placeholder="Search cook..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-96 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+        />
+      </div>
 
       {loading ? (
-        <p style={{ color: "white", textAlign: "center" }}>
+        <p className="text-center animate-pulse text-gray-400">
           Loading chefs...
         </p>
       ) : (
-        <div style={styles.grid}>
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filteredCooks.map((cook) => (
-            <div key={cook._id} style={styles.card}>
-              <div style={styles.imageContainer}>
+            <div
+              key={cook._id}
+              className="bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl border border-gray-800 transform hover:-translate-y-4 hover:rotate-1 transition-all duration-500"
+            >
+              <div className="h-60 overflow-hidden">
                 <img
                   src={`http://localhost:5000/uploads/${cook.image}`}
                   alt={cook.name}
-                  style={styles.image}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                 />
               </div>
 
-              <h3 style={styles.name}>{cook.name}</h3>
+              <div className="p-6 text-center">
+                <h3 className="text-2xl font-semibold mb-6">
+                  {cook.name}
+                </h3>
 
-              <div style={styles.buttons}>
-                <button
-                  style={styles.editBtn}
-                  onClick={() => router.push(`/edit/${cook._id}`)}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => router.push(`/edit/${cook._id}`)}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                  >
+                    ✏ Edit
+                  </button>
 
-                >
-                  ✏ Edit
-                </button>
-
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => deleteCook(cook._id)}
-                >
-                  🗑 Delete
-                </button>
+                  <button
+                    onClick={() => deleteCook(cook._id)}
+                    className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -86,78 +99,3 @@ export default function CooksPage() {
     </div>
   );
 }
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    padding: "50px",
-    background: "linear-gradient(135deg, #1e3c72, #2a5298)",
-  },
-  title: {
-    textAlign: "center",
-    color: "#fff",
-    marginBottom: "20px",
-    fontSize: "32px",
-  },
-  search: {
-    display: "block",
-    margin: "0 auto 40px auto",
-    padding: "12px",
-    width: "300px",
-    borderRadius: "8px",
-    border: "none",
-    fontSize: "16px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "30px",
-  },
-  card: {
-    background: "rgba(255,255,255,0.1)",
-    backdropFilter: "blur(10px)",
-    borderRadius: "20px",
-    padding: "20px",
-    textAlign: "center",
-    color: "#fff",
-    boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-    transition: "0.3s",
-  },
-  imageContainer: {
-    overflow: "hidden",
-    borderRadius: "15px",
-  },
-  image: {
-    width: "100%",
-    height: "220px",
-    objectFit: "cover",
-    transition: "transform 0.4s ease",
-  },
-  name: {
-    margin: "15px 0",
-    fontSize: "20px",
-  },
-  buttons: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "10px",
-  },
-  editBtn: {
-    flex: 1,
-    padding: "8px",
-    borderRadius: "8px",
-    border: "none",
-    background: "#4CAF50",
-    color: "white",
-    cursor: "pointer",
-  },
-  deleteBtn: {
-    flex: 1,
-    padding: "8px",
-    borderRadius: "8px",
-    border: "none",
-    background: "#f44336",
-    color: "white",
-    cursor: "pointer",
-  },
-};

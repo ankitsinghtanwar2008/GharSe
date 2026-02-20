@@ -18,6 +18,7 @@ export default function EditCook() {
       const res = await fetch("http://localhost:5000/api/cooks");
       const data = await res.json();
       const cook = data.find((c) => c._id === id);
+
       if (cook) {
         setName(cook.name);
         setPreview(`http://localhost:5000/uploads/${cook.image}`);
@@ -37,9 +38,7 @@ export default function EditCook() {
 
     const formData = new FormData();
     formData.append("name", name);
-    if (image) {
-      formData.append("image", image);
-    }
+    if (image) formData.append("image", image);
 
     try {
       setLoading(true);
@@ -59,104 +58,77 @@ export default function EditCook() {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>✏ Edit Cook</h2>
+    <div className="relative min-h-screen bg-black text-white flex items-center justify-center px-6 overflow-hidden">
 
-        <form onSubmit={handleUpdate} style={styles.form}>
-          <label style={styles.label}>Cook Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={styles.input}
-          />
+      {/* Animated Glow Background */}
+      <div className="absolute w-[500px] h-[500px] bg-purple-600 blur-[150px] opacity-20 rounded-full top-[-100px] left-[-100px] animate-pulse"></div>
+      <div className="absolute w-[400px] h-[400px] bg-blue-500 blur-[150px] opacity-20 rounded-full bottom-[-100px] right-[-100px] animate-pulse"></div>
 
-          <label style={styles.label}>Upload New Image (Optional)</label>
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setImage(file);
-                setPreview(URL.createObjectURL(file));
-              }
-            }}
-            style={styles.file}
-          />
+      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-xl border border-gray-700 rounded-3xl shadow-2xl p-8">
 
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              style={styles.preview}
+        <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          ✏ Edit Cook
+        </h2>
+
+        <form onSubmit={handleUpdate} className="flex flex-col gap-6">
+
+          {/* Name Input */}
+          <div>
+            <label className="text-sm text-gray-300">Cook Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-2 w-full px-4 py-3 rounded-xl bg-white/10 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              placeholder="Enter cook name"
             />
+          </div>
+
+          {/* Custom File Upload */}
+          <div>
+            <label className="text-sm text-gray-300">Upload New Image (Optional)</label>
+
+            <label className="mt-2 flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-purple-500 transition-all bg-white/5">
+              <span className="text-gray-400">
+                {image ? image.name : "Click to choose image"}
+              </span>
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setImage(file);
+                    setPreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </label>
+          </div>
+
+          {/* Image Preview */}
+          {preview && (
+            <div className="mt-2 overflow-hidden rounded-xl">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full h-52 object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
           )}
 
-          <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Updating..." : "Update Cook"}
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg"
+          >
+            {loading ? "Updating..." : "Update Cook 🚀"}
           </button>
+
         </form>
       </div>
     </div>
   );
 }
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(135deg, #141E30, #243B55)",
-  },
-  card: {
-    background: "#ffffff",
-    padding: "40px",
-    borderRadius: "20px",
-    width: "380px",
-    boxShadow: "0 15px 40px rgba(0,0,0,0.3)",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "25px",
-    color: "#222",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-  },
-  label: {
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#444",
-  },
-  input: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    fontSize: "15px",
-  },
-  file: {
-    padding: "8px",
-  },
-  preview: {
-    width: "100%",
-    height: "200px",
-    objectFit: "cover",
-    borderRadius: "10px",
-    marginTop: "10px",
-  },
-  button: {
-    marginTop: "10px",
-    padding: "12px",
-    borderRadius: "8px",
-    border: "none",
-    background: "#4CAF50",
-    color: "white",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-};
