@@ -43,9 +43,7 @@ export default function RootLayout({
             
           </CartProvider>
         </Providers>
-
         <ChatBox />
-        
         <Toaster
           position="top-right"
           toastOptions={{
