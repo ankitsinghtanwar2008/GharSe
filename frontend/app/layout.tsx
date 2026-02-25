@@ -5,7 +5,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import Providers from "./providers";
-
+import ChatBox from "../components/ChatBox";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -40,9 +40,10 @@ export default function RootLayout({
           <CartProvider>
             <Navbar />
             {children}
+            
           </CartProvider>
         </Providers>
-
+        <ChatBox />
         <Toaster
           position="top-right"
           toastOptions={{
