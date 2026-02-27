@@ -1,66 +1,41 @@
-const express = require("express");
-const router = express.Router();
-const Cook = require("../models/cook");
-const upload = require("../middlewares/upload");
+const express = require("express")
+const router = express.Router()
+const Cook = require("../models/Cook")
+const multer = require("multer")
 
+const storage = multer.diskStorage({
+destination: function (req, file, cb) {
+cb(null, "uploads")
+},
+filename: function (req, file, cb) {
+cb(null, Date.now() + ".png")
+}
+})
+
+const upload = multer({ storage })
 
 router.get("/", async (req, res) => {
-  try {
-    const cooks = await Cook.find();
-    res.json(cooks);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+const cooks = await Cook.find()
+res.json(cooks)
+})
 
+router.post("/add-dish/:cookId", upload.single("image"), async (req, res) => {
 
-router.post("/", upload.single("image"), async (req, res) => {
-  try {
-    const newCook = new Cook({
-      name: req.body.name,
-      image: req.file.filename,
-    });
+const { cookId } = req.params
+const { name, price } = req.body
 
-    await newCook.save();
-    res.status(201).json(newCook);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+const cook = await Cook.findById(cookId)
 
+cook.dishes.push({
+name,
+price,
+image: req.file.filename
+})
 
-router.delete("/:id", async (req, res) => {
-  try {
-    await Cook.findByIdAndDelete(req.params.id);
-    res.json({ message: "Cook deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+await cook.save()
 
+res.json({ message: "Dish Added Successfully" })
 
+})
 
-router.put("/:id", upload.single("image"), async (req, res) => {
-  try {
-    const cook = await Cook.findById(req.params.id);
-
-    if (!cook) {
-      return res.status(404).json({ message: "Cook not found" });
-    }
-
-    cook.name = req.body.name;
-
-    if (req.file) {
-      cook.image = req.file.filename; // new image if uploaded
-    }
-
-    await cook.save();
-
-    res.json({ message: "Cook updated successfully", cook });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-module.exports = router;
+module.exports = router

@@ -1,8 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
-const CookSchema = new mongoose.Schema({
-  name: String,
-  image: String
-});
+const dishSchema = new mongoose.Schema({
+name: String,
+price: String,
+image: String
+})
 
-module.exports = mongoose.model('Cook', CookSchema);
+const cookSchema = new mongoose.Schema({
+name: String,
+image: String,
+dishes: [dishSchema]
+})
+
+module.exports = mongoose.models.Cook || mongoose.model("Cook", cookSchema)
