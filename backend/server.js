@@ -8,7 +8,8 @@ require("dotenv").config();
 
 const cookRoutes = require("./routes/cookRoutes");
 const authRoutes = require("./routes/auth");
-const Cook = require("./models/Cook");
+const Cook = require("./models/cook");
+const reviewRoutes = require("./routes/review");
 
 const multer = require("multer");
 
@@ -22,6 +23,7 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
 
 // ------------------- Express Setup -------------------
 const app = express();
@@ -42,6 +44,7 @@ mongoose
 
 // ------------------- Auth Routes -------------------
 app.use("/api/auth", authRoutes);
+app.use("/api/review", reviewRoutes);
 
 // ------------------- Cook Routes -------------------
 
