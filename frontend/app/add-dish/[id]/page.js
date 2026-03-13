@@ -1,153 +1,252 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import ParticleBackground from "../../../components/ParticleBackground"; // Correct path
-import { FiUpload } from "react-icons/fi"; // optional upload icon
+import ParticleBackground from "../../../components/ParticleBackground";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function AddDish() {
-  const { id } = useParams();
 
-  const [name, setName] = useState("");
+  const { id } = useParams();
+  const router = useRouter();
+
+  const [dishName, setDishName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
   const [image, setImage] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  const fileInputRef = useRef(null);
+  /* ================= IMAGE UPLOAD ================= */
 
-  const submitDish = async (e) => {
-    e.preventDefault();
+  const handleImage = (file) => {
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("location", location);
-    if (image) formData.append("image", image);
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
 
-    const res = await fetch(`http://localhost:5000/api/cooks/add-dish/${id}`, {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    alert(data.message || "Dish Added Successfully");
-
-    setName("");
-    setDescription("");
-    setPrice("");
-    setLocation("");
-    setImage(null);
   };
 
   const handleDrop = (e) => {
+
     e.preventDefault();
-    setDragOver(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setImage(e.dataTransfer.files[0]);
+    const file = e.dataTransfer.files[0];
+
+    if (file) handleImage(file);
+
+  };
+
+  const handleFileChange = (e) => {
+
+    const file = e.target.files[0];
+    if (file) handleImage(file);
+
+  };
+
+  /* ================= SUBMIT ================= */
+
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+
+    if (!image) {
+      toast.error("Please upload dish image");
+      return;
     }
+
+    const formData = new FormData();
+
+    formData.append("dishName", dishName);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("location", location);
+    formData.append("image", image);
+
+    try {
+
+      const res = await fetch(`http://localhost:5000/api/cooks/add-dish/${id}`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+
+        setSuccess(true);
+
+        toast.success("Dish added successfully!");
+
+        setTimeout(() => {
+          router.push("/cook");
+        }, 2000);
+
+      } else {
+
+        toast.error(data.message);
+
+      }
+
+    } catch (error) {
+
+      toast.error("Server error");
+      console.error(error);
+
+    }
+
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-900 overflow-hidden flex flex-col items-center justify-center p-10">
-      {/* Particle Background */}
+
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+
       <ParticleBackground />
+      <Toaster position="top-right" />
 
-      {/* Heading */}
-      <motion.h1
-        className="text-4xl font-extrabold text-white mb-10 z-10 relative"
-        initial={{ opacity: 0, y: -40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
-        Add a New Dish
-      </motion.h1>
+      {/* SUCCESS POPUP */}
 
-      {/* Form */}
-      <motion.form
-        onSubmit={submitDish}
-        className="space-y-6 bg-gray-800 bg-opacity-80 p-8 rounded-2xl shadow-2xl w-full max-w-xl relative z-10"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <motion.input
-          type="text"
-          placeholder="Dish Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border border-gray-600 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-900 text-white placeholder-gray-400"
-          whileFocus={{ scale: 1.02 }}
-        />
+      {success && (
 
-        <motion.input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border border-gray-600 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-900 text-white placeholder-gray-400"
-          whileFocus={{ scale: 1.02 }}
-        />
-
-        <motion.input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="border border-gray-600 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-900 text-white placeholder-gray-400"
-          whileFocus={{ scale: 1.02 }}
-        />
-
-        <motion.input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="border border-gray-600 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-900 text-white placeholder-gray-400"
-          whileFocus={{ scale: 1.02 }}
-        />
-
-        {/* Drag & Drop File Upload */}
         <motion.div
-          onClick={() => fileInputRef.current.click()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-          }}
-          onDrop={handleDrop}
-          className={`flex flex-col items-center justify-center border-2 border-dashed rounded-full w-40 h-40 mx-auto cursor-pointer transition-all duration-300 ${
-            dragOver ? "border-pink-500 bg-pink-100/10" : "border-gray-500"
-          }`}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute top-10 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg"
         >
-          <FiUpload className="text-4xl text-white mb-2" />
-          <span className="text-white text-center text-sm px-2">
-            {image ? image.name : "Drag & Drop or Click"}
-          </span>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={(e) => setImage(e.target.files[0])}
-          />
+          Dish Added Successfully 🎉
         </motion.div>
 
-        {/* Submit Button */}
-        <motion.button
-          type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl w-full font-semibold shadow-lg transition-transform duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Dish
-        </motion.button>
-      </motion.form>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="grid md:grid-cols-2 gap-10 backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-10 w-[900px] text-white"
+      >
+
+        {/* ================= FORM ================= */}
+
+        <div>
+
+          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-yellow-400 to-pink-500 bg-clip-text text-transparent">
+            Add New Dish 🍽
+          </h1>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            <input
+              type="text"
+              placeholder="Dish Name"
+              value={dishName}
+              onChange={(e) => setDishName(e.target.value)}
+              className="w-full p-3 rounded-xl bg-black/40 border border-gray-600 focus:border-yellow-400 outline-none"
+              required
+            />
+
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-3 rounded-xl bg-black/40 border border-gray-600 focus:border-yellow-400 outline-none"
+              required
+            />
+
+            <input
+              type="number"
+              placeholder="Price ₹"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full p-3 rounded-xl bg-black/40 border border-gray-600 focus:border-yellow-400 outline-none"
+              required
+            />
+
+            <input
+              type="text"
+              placeholder="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full p-3 rounded-xl bg-black/40 border border-gray-600 focus:border-yellow-400 outline-none"
+              required
+            />
+
+            {/* DRAG DROP AREA */}
+
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              className="border-2 border-dashed border-gray-500 rounded-xl p-6 text-center cursor-pointer hover:border-yellow-400 transition"
+            >
+
+              <p className="text-gray-300 mb-2">
+                Drag & Drop Dish Image
+              </p>
+
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="text-sm"
+              />
+
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-yellow-400 to-pink-500 text-black hover:shadow-lg hover:shadow-pink-500/40 transition-all"
+            >
+              Add Dish 🚀
+            </motion.button>
+
+          </form>
+
+        </div>
+
+
+        {/* ================= LIVE PREVIEW ================= */}
+
+        <div className="flex items-center justify-center">
+
+          <motion.div
+            className="bg-gray-800 rounded-2xl shadow-xl overflow-hidden w-[300px]"
+            whileHover={{ scale: 1.05 }}
+          >
+
+            {preview && (
+              <img
+                src={preview}
+                className="w-full h-48 object-cover"
+              />
+            )}
+
+            <div className="p-5">
+
+              <h2 className="text-xl font-bold text-yellow-400">
+                {dishName || "Dish Name"}
+              </h2>
+
+              <p className="text-gray-300 text-sm mt-2">
+                {description || "Dish description will appear here"}
+              </p>
+
+              <p className="text-green-400 mt-3">
+                ₹ {price || "0"}
+              </p>
+
+              <p className="text-gray-400 text-sm">
+                📍 {location || "Location"}
+              </p>
+
+            </div>
+
+          </motion.div>
+
+        </div>
+
+      </motion.div>
+
     </div>
+
   );
+
 }

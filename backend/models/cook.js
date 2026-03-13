@@ -8,35 +8,37 @@ const ReviewSchema = new mongoose.Schema({
 
 const DishSchema = new mongoose.Schema({
 
-  dishName:{
-    type:String,
-    required:true
+  dishName: {
+    type: String,
+    required: true
   },
 
-  price:{
-    type:Number,
-    required:true
+  price: {
+    type: Number,
+    required: true
   },
 
-  description:String,
-  image:String,
+  description: String,
+  location: String,
+  image: String,
 
-  reviews:{
-    type:[ReviewSchema],
-    default:[]
+  reviews: {
+    type: [ReviewSchema],
+    default: []
   },
 
-  averageRating:{
-    type:Number,
-    default:0
+  averageRating: {
+    type: Number,
+    default: 0
   }
 
 });
 
 const CookSchema = new mongoose.Schema({
-  name:String,
-  speciality:String,
-  dishes:[DishSchema]
+  name: String,
+  speciality: String,
+  location: String,
+  dishes: [DishSchema]
 });
 
-module.exports = mongoose.models.Cook || mongoose.model("Cook",CookSchema);
+module.exports = mongoose.models.Cook || mongoose.model("Cook", CookSchema);

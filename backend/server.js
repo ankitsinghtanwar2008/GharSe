@@ -8,8 +8,9 @@ require("dotenv").config();
 
 const cookRoutes = require("./routes/cookRoutes");
 const authRoutes = require("./routes/auth");
-const Cook = require("./models/cook");
+const Cook = require("./models/Cook");
 const reviewRoutes = require("./routes/review");
+const paymentRoutes = require("./routes/payment");
 
 const multer = require("multer");
 
@@ -30,6 +31,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 // ------------------- MongoDB Connection -------------------
 mongoose
@@ -45,6 +47,7 @@ mongoose
 // ------------------- Auth Routes -------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/review", reviewRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // ------------------- Cook Routes -------------------
 

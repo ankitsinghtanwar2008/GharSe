@@ -1,51 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter,usePathname } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 
-export default function Navbar(){
+export default function Navbar() {
 
-const router = useRouter();
-const pathname = usePathname();
+  const router = useRouter();
+  const pathname = usePathname();
 
-const { cartItems } = useCart();
+  const { cartCount } = useCart();
 
-const [isLoggedIn,setIsLoggedIn] = useState(false);
-const [mounted,setMounted] = useState(false);
+  const [isLoggedIn,setIsLoggedIn] = useState(false);
+  const [mounted,setMounted] = useState(false);
 
-useEffect(()=>{
+  useEffect(()=>{
 
-const loginStatus = localStorage.getItem("isLoggedIn");
+    const token = localStorage.getItem("token");
 
-if(loginStatus === "true"){
-setIsLoggedIn(true);
-}
+    if(token){
+    setIsLoggedIn(true);
+    }
 
-setMounted(true);
+    setMounted(true);
 
-},[])
+  },[])
 
-const handleLogout = ()=>{
+  const handleLogout = ()=>{
 
-localStorage.setItem("isLoggedIn","false");
-localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
 
-setIsLoggedIn(false);
+    setIsLoggedIn(false);
 
-router.push("/login");
+    router.push("/login");
 
-}
+  }
 
-const linkStyle = (path)=>
-`transition-all duration-300 hover:text-blue-400 ${
-pathname===path ? "text-blue-400 font-semibold" : ""
-}`
+  const linkStyle = (path)=>
+  `transition-all duration-300 hover:text-blue-400 ${
+  pathname===path ? "text-blue-400 font-semibold" : ""
+  }`
 
-if(!mounted) return null;
+  if(!mounted) return null;
 
-return(
+  return(
 
 <nav className="sticky top-0 z-50 backdrop-blur-md bg-black/70 border-b border-gray-800 shadow-lg">
 
@@ -80,10 +81,6 @@ Chefs
 
 <div className="flex gap-4 items-center">
 
-{isLoggedIn ? (
-
-<>
-
 <Link
 href="/cart"
 className="relative bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2 rounded-full hover:scale-105 transition-all duration-300 shadow-md"
@@ -91,17 +88,19 @@ className="relative bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2 round
 
 🛒 Cart
 
-{cartItems?.length > 0 && (
+{cartCount > 0 && (
 
 <span className="absolute -top-2 -right-2 bg-red-500 text-xs px-2 py-1 rounded-full">
 
-{cartItems.length}
+{cartCount}
 
 </span>
 
 )}
 
 </Link>
+
+{isLoggedIn ? (
 
 <button
 onClick={handleLogout}
@@ -111,8 +110,6 @@ className="bg-red-500/90 px-5 py-2 rounded-full hover:bg-red-600 hover:scale-105
 Logout
 
 </button>
-
-</>
 
 ):( 
 

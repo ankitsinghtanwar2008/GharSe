@@ -27,10 +27,24 @@ export default function CooksPage() {
   };
 
   const deleteCook = async (id) => {
-    if (!confirm("Are you sure you want to delete this cook?")) return;
-    await fetch(`http://localhost:5000/api/cooks/${id}`, { method: "DELETE" });
-    setCooks(cooks.filter((c) => c._id !== id));
-  };
+
+  if (!confirm("Are you sure you want to delete this cook?")) return;
+
+  try {
+
+    await fetch(`http://localhost:5000/api/cooks/${id}`, {
+      method: "DELETE",
+    });
+
+    fetchCooks(); // reload cooks
+
+  } catch (error) {
+
+    console.error("Delete error:", error);
+
+  }
+
+};
 
   return (
     <div className="relative min-h-screen bg-gray-900 overflow-hidden p-10">

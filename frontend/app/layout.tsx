@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import Providers from "./providers";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,13 @@ export default function RootLayout({
           backgroundColor: "#f5f7fa",
         }}
       >
+
+        {/* Razorpay Script */}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
+
         <Providers>
           <CartProvider>
             <Navbar />
@@ -53,6 +61,7 @@ export default function RootLayout({
             },
           }}
         />
+
       </body>
     </html>
   );

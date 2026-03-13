@@ -24,9 +24,9 @@ export default function Dashboard() {
 
   useEffect(() => {
 
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const token = localStorage.getItem("token");
 
-    if (!isLoggedIn) {
+    if (!token) {
       router.push("/login");
       return;
     }
@@ -63,12 +63,12 @@ export default function Dashboard() {
 
             allDishes.push({
               _id: dish._id,
-              dishName: dish.name,
+              dishName: dish.dishName,   // FIXED
               description: dish.description,
               price: dish.price,
               location: dish.location,
               image: dish.image,
-              cookName: cook.name,
+              chefName: cook.name,
             });
 
           });
@@ -89,7 +89,7 @@ export default function Dashboard() {
 
   };
 
-  const chefs = ["All", ...new Set(foods.map((f) => f.cookName))];
+  const chefs = ["All", ...new Set(foods.map((f) => f.chefName))];
 
   const locations = [
     "All",
@@ -103,7 +103,7 @@ export default function Dashboard() {
       .includes(search.toLowerCase());
 
     const matchChef =
-      chefFilter === "All" || food.cookName === chefFilter;
+      chefFilter === "All" || food.chefName === chefFilter;
 
     const matchLocation =
       locationFilter === "All" ||
@@ -206,11 +206,11 @@ export default function Dashboard() {
         <select
           value={chefFilter}
           onChange={(e) => setChefFilter(e.target.value)}
-          className="p-3 rounded-xl bg-white/80 text-black outline-none focus:ring-2 focus:ring-blue-400"
+          className="p-3 rounded-xl bg-white/80 text-black outline-none"
         >
           {chefs.map((chef, i) => (
             <option key={i}>
-              {chef === "All" ? "All Cooks" : chef}
+              {chef === "All" ? "All Chefs" : chef}
             </option>
           ))}
         </select>
@@ -218,7 +218,7 @@ export default function Dashboard() {
         <select
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
-          className="p-3 rounded-xl bg-white/80 text-black outline-none focus:ring-2 focus:ring-purple-400"
+          className="p-3 rounded-xl bg-white/80 text-black outline-none"
         >
           {locations.map((loc, i) => (
             <option key={i}>
@@ -232,20 +232,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 relative z-10">
 
         {loading &&
-          [1, 2, 3, 4, 5, 6].map((i) => (
-
-            <div
-              key={i}
-              className="h-80 bg-white/10 rounded-xl animate-pulse"
-            ></div>
-
+          [1,2,3,4,5,6].map((i)=>(
+            <div key={i} className="h-80 bg-white/10 rounded-xl animate-pulse"></div>
           ))}
 
         {!loading &&
           filteredFoods.map((food, index) => {
 
             const avg = getAverageRating(food._id);
-
             const userRating =
               ratings[food._id]?.slice(-1)[0] || 0;
 
@@ -275,7 +269,8 @@ export default function Dashboard() {
                   className="w-full h-40 object-cover rounded mb-3"
                 />
 
-                <h2 className="text-xl font-bold text-pink-300">
+                {/* Stylish Dish Name */}
+                <h2 className="text-2xl font-extrabold bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 bg-clip-text text-transparent tracking-wide">
                   {food.dishName}
                 </h2>
 
@@ -284,7 +279,7 @@ export default function Dashboard() {
                 </p>
 
                 <p className="text-gray-300">
-                  Cooks: {food.cookName}
+                  👨‍🍳 Chef: {food.chefName}
                 </p>
 
                 <p className="text-gray-400">
@@ -305,17 +300,14 @@ export default function Dashboard() {
 
                 </div>
 
-                {/* DYNAMIC STARS */}
+                {/* Stars */}
 
                 <div className="flex gap-1 mt-2 text-xl">
 
-                  {[1, 2, 3, 4, 5].map((star) => (
-
+                  {[1,2,3,4,5].map((star)=>(
                     <button
                       key={star}
-                      onClick={() =>
-                        addRating(food._id, star)
-                      }
+                      onClick={()=>addRating(food._id, star)}
                       className={
                         star <= userRating
                           ? "text-yellow-400"
@@ -324,12 +316,11 @@ export default function Dashboard() {
                     >
                       ★
                     </button>
-
                   ))}
 
                 </div>
 
-                <p className="text-blue-400 font-bold mt-2">
+                <p className="text-green-400 font-bold mt-2">
                   ₹{food.price}
                 </p>
 
@@ -340,13 +331,13 @@ export default function Dashboard() {
                   Add to Cart
                 </button>
 
-                {/* COMMENT */}
+                {/* COMMENTS */}
 
                 <div className="mt-4">
 
                   <input
                     value={commentInput[food._id] || ""}
-                    onChange={(e) =>
+                    onChange={(e)=>
                       setCommentInput({
                         ...commentInput,
                         [food._id]: e.target.value,
@@ -357,9 +348,7 @@ export default function Dashboard() {
                   />
 
                   <button
-                    onClick={() =>
-                      addComment(food._id)
-                    }
+                    onClick={()=>addComment(food._id)}
                     className="mt-2 bg-green-500 px-3 py-1 rounded"
                   >
                     Comment
@@ -369,7 +358,7 @@ export default function Dashboard() {
 
                 <div className="mt-2 text-sm text-gray-300">
 
-                  {comments[food._id]?.map((c, i) => (
+                  {comments[food._id]?.map((c,i)=>(
                     <p key={i}>💬 {c}</p>
                   ))}
 
