@@ -1,3 +1,4 @@
+import "./globals.css";
 import Navbar from "./components/Navbar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -6,7 +7,8 @@ import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import Providers from "./providers";
 import Script from "next/script";
-
+import Chatbot3D from "../components/Chatbot3D";
+import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -37,11 +39,17 @@ export default function RootLayout({
           backgroundColor: "#f5f7fa",
         }}
       >
-
-        {/* Razorpay Script */}
+        {/* 1. Razorpay Script */}
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="lazyOnload"
+        />
+
+        {/* 2. Google Maps Script - Added here */}
+        <Script
+          id="google-maps-script"
+          src={`https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places`}
+          strategy="beforeInteractive"
         />
 
         <Providers>
@@ -61,7 +69,7 @@ export default function RootLayout({
             },
           }}
         />
-
+        <Chatbot3D />
       </body>
     </html>
   );
