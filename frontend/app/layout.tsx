@@ -6,6 +6,9 @@ import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import Providers from "./providers";
 import Script from "next/script";
+import "./globals.css";
+import Chatbot3D from "../components/Chatbot3D";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,7 +64,7 @@ export default function RootLayout({
             },
           }}
         />
-
+        <Chatbot3D/>
       </body>
     </html>
   );
