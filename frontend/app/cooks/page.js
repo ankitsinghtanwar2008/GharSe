@@ -8,6 +8,7 @@ import ParticleBackground from "../../components/ParticleBackground";
 export default function CooksPage() {
   const [cooks, setCooks] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -21,35 +22,30 @@ export default function CooksPage() {
       const data = await res.json();
       setCooks(data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch error:", err);
     }
     setLoading(false);
   };
 
   const deleteCook = async (id) => {
+    if (!confirm("Are you sure you want to delete this cook?")) return;
 
-  if (!confirm("Are you sure you want to delete this cook?")) return;
+    try {
+      await fetch(`http://localhost:5000/api/cooks/${id}`, {
+        method: "DELETE",
+      });
 
-  try {
-
-    await fetch(`http://localhost:5000/api/cooks/${id}`, {
-      method: "DELETE",
-    });
-
-    fetchCooks(); // reload cooks
-
-  } catch (error) {
-
-    console.error("Delete error:", error);
-
-  }
-
-};
+      fetchCooks();
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-gray-900 overflow-hidden p-10">
       <ParticleBackground />
 
+      {/* TITLE */}
       <motion.h1
         className="text-5xl font-extrabold text-center text-white mb-12 relative z-10"
         initial={{ opacity: 0, y: -50 }}
@@ -59,7 +55,7 @@ export default function CooksPage() {
         Meet Our Chefs
       </motion.h1>
 
-      {/* Loader Skeleton */}
+      {/* LOADING */}
       {loading ? (
         <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-10 px-8 relative z-10">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -71,56 +67,71 @@ export default function CooksPage() {
         </div>
       ) : (
         <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-10 px-8 relative z-10">
-          {cooks.map((cook, idx) => (
-            <motion.div
-              key={cook._id}
-              className="bg-gradient-to-b from-gray-800 via-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl hover:shadow-pink-500/50 cursor-pointer transition-all duration-300"
-              whileHover={{ scale: 1.05, rotateY: 3 }}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-            >
-              <div className="overflow-hidden rounded-xl border-2 border-gray-700">
-                <img
-                  src={`http://localhost:5000/uploads/${cook.image}`}
-                  alt={cook.name}
-                  className="w-full h-64 object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
+          {cooks.map((cook, idx) => {
+            const image =
+              cook.dishes && cook.dishes.length > 0
+                ? `http://localhost:5000/uploads/${cook.dishes[0].image}`
+                : "/chef-placeholder.png";
 
-              <h2 className="text-2xl font-semibold mt-4 mb-6 text-white">{cook.name}</h2>
+            return (
+              <motion.div
+                key={cook._id}
+                className="bg-gradient-to-b from-gray-800 via-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl hover:shadow-pink-500/50 cursor-pointer transition-all duration-300"
+                whileHover={{ scale: 1.05, rotateY: 3 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                {/* IMAGE */}
+                <div className="overflow-hidden rounded-xl border-2 border-gray-700">
+                  <img
+                    src={image}
+                    alt={cook.name}
+                    className="w-full h-64 object-cover hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.target.src = "/chef-placeholder.png";
+                    }}
+                  />
+                </div>
 
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => router.push(`/edit/${cook._id}`)}
-                  className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
-                >
-                  Edit
-                </button>
+                {/* NAME */}
+                <h2 className="text-2xl font-semibold mt-4 mb-6 text-white">
+                  {cook.name}
+                </h2>
 
-                <button
-                  onClick={() => deleteCook(cook._id)}
-                  className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
-                >
-                  Delete
-                </button>
+                {/* BUTTONS */}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => router.push(`/edit/${cook._id}`)}
+                    className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  onClick={() => router.push(`/add-dish/${cook._id}`)}
-                  className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
-                >
-                  Add Dish
-                </button>
+                  <button
+                    onClick={() => deleteCook(cook._id)}
+                    className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
+                  >
+                    Delete
+                  </button>
 
-                <button
-                  onClick={() => router.push(`/chef-dishes/${cook._id}`)}
-                  className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
-                >
-                  Manage Dishes
-                </button>
-              </div>
-            </motion.div>
-          ))}
+                  <button
+                    onClick={() => router.push(`/add-dish/${cook._id}`)}
+                    className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
+                  >
+                    Add Dish
+                  </button>
+
+                  <button
+                    onClick={() => router.push(`/chef-dishes/${cook._id}`)}
+                    className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-xl shadow-md transition-all duration-300 flex-1"
+                  >
+                    Manage Dishes
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>
