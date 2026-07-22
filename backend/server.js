@@ -8,7 +8,7 @@ require("dotenv").config();
 
 const cookRoutes = require("./routes/cookRoutes");
 const authRoutes = require("./routes/auth");
-const Cook = require("./models/Cook");
+const Cook = require("./models/cook");
 const reviewRoutes = require("./routes/review");
 const paymentRoutes = require("./routes/payment");
 
