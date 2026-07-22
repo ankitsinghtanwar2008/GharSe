@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -25,13 +26,16 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await res.json();
 
@@ -39,13 +43,14 @@ export default function Signup() {
         alert("Signup successful");
         router.push("/login");
       } else {
-        alert(data.message);
+        alert(data.message || "Signup failed");
       }
     } catch (error) {
+      console.error(error);
       alert("Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -88,6 +93,7 @@ export default function Signup() {
             required
             className="w-full p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none"
           />
+
           <div
             className="absolute right-4 top-3 cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
