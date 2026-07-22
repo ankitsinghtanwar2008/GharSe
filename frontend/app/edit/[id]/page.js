@@ -15,13 +15,13 @@ export default function EditCook() {
 
   useEffect(() => {
     const fetchCook = async () => {
-      const res = await fetch("http://localhost:5000/api/cooks");
+      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/cooks");
       const data = await res.json();
       const cook = data.find((c) => c._id === id);
 
       if (cook) {
         setName(cook.name);
-        setPreview(`http://localhost:5000/uploads/${cook.image}`);
+        setPreview(`${process.env.NEXT_PUBLIC_API_URL}/uploads/${cook.image}`);
       }
     };
 
@@ -43,7 +43,7 @@ export default function EditCook() {
     try {
       setLoading(true);
 
-      await fetch(`http://localhost:5000/api/cooks/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks/${id}`, {
         method: "PUT",
         body: formData,
       });

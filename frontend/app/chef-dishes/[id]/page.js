@@ -16,7 +16,8 @@ export default function ChefDishes() {
 
   const fetchDishes = async () => {
     setLoading(true);
-    const res = await fetch(`http://localhost:5000/api/cooks/${id}`);
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/cooks`;
+    const res = await fetch(url);
     const data = await res.json();
     setDishes(data.dishes || []);
     setLoading(false);
@@ -24,7 +25,7 @@ export default function ChefDishes() {
 
   const deleteDish = async (dishId) => {
     if (!confirm("Are you sure you want to delete this dish?")) return;
-    await fetch(`http://localhost:5000/api/cooks/delete-dish/${id}/${dishId}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks/delete-dish/${id}/${dishId}`, {
       method: "DELETE",
     });
     alert("Dish Deleted Successfully");
@@ -59,7 +60,7 @@ export default function ChefDishes() {
               className="bg-gradient-to-b from-gray-800 via-gray-900 to-gray-800 p-5 rounded-2xl shadow-2xl hover:shadow-pink-600 hover:-translate-y-2 cursor-pointer transition-all duration-300"
             >
               <img
-                src={`http://localhost:5000/uploads/${dish.image}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${dish.image}`}
                 alt={dish.dishName}
                 className="w-full h-48 object-cover rounded-xl mb-4"
               />

@@ -24,7 +24,7 @@ export default function AddCook() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/cooks", {
+      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/cooks", {
         method: "POST",
         body: formData,
       });

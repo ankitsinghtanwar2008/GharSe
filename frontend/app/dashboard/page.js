@@ -49,8 +49,8 @@ export default function Dashboard() {
     setLoading(true);
 
     try {
-
-      const res = await fetch("http://localhost:5000/api/cooks");
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/cooks`;
+      const res = await fetch(url);
       const data = await res.json();
 
       let allDishes = [];
@@ -265,7 +265,7 @@ export default function Dashboard() {
                 </button>
 
                 <img
-                  src={`http://localhost:5000/uploads/${food.image}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${food.image}`}
                   className="w-full h-40 object-cover rounded mb-3"
                 />
 

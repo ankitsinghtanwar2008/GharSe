@@ -23,7 +23,7 @@ export default function EditDish() {
   }, []);
 
   const fetchDish = async () => {
-    const res = await fetch(`http://localhost:5000/api/cooks/${cookId}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks/${cookId}`);
     const data = await res.json();
 
     const dish = data.dishes.find((d) => d._id === dishId);
@@ -48,7 +48,7 @@ export default function EditDish() {
     }
 
     await fetch(
-      `http://localhost:5000/api/cooks/update-dish/${cookId}/${dishId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/cooks/update-dish/${cookId}/${dishId}`,
       {
         method: "PUT",
         body: formData,

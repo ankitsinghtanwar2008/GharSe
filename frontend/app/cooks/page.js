@@ -19,7 +19,8 @@ export default function CooksPage() {
   const fetchCooks = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/cooks");
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/cooks`;
+      const res = await fetch(url);
       const data = await res.json();
       setCooks(data || []);
     } catch (err) {
@@ -32,7 +33,7 @@ export default function CooksPage() {
     if (!confirm("Are you sure you want to delete this cook?")) return;
 
     try {
-      await fetch(`http://localhost:5000/api/cooks/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks/${id}`, {
         method: "DELETE",
       });
       fetchCooks();
@@ -81,9 +82,9 @@ export default function CooksPage() {
           {cooks.map((cook, idx) => {
             const image =
               cook.image
-                ? `http://localhost:5000/uploads/${cook.image}`
+                ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${cook.image}`
                 : cook.dishes && cook.dishes.length > 0
-                ? `http://localhost:5000/uploads/${cook.dishes[0].image}`
+                ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${cook.dishes[0].image}`
                 : "/chef-placeholder.png";
 
             return (
