@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Cook = require("../models/Cook");
+const Cook = require("../models/cook");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
