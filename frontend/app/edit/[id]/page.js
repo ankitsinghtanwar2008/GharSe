@@ -13,49 +13,29 @@ export default function EditCook() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchCook = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks");
+useEffect(() => {
+  const fetchCook = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cooks`
+      );
+
       const data = await res.json();
       const cook = data.find((c) => c._id === id);
 
       if (cook) {
         setName(cook.name);
-        setPreview(`${process.env.NEXT_PUBLIC_API_URL}/uploads/${cook.image}`);
+        setPreview(
+          `${process.env.NEXT_PUBLIC_API_URL}/uploads/${cook.image}`
+        );
       }
-    };
-
-    fetchCook();
-  }, [id]);
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-
-    if (!name) {
-      toast.error("Name is required");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    if (image) formData.append("image", image);
-
-    try {
-      setLoading(true);
-
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks/${id}`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      toast.success("Cook updated successfully 🎉");
-      router.push("/cooks");
     } catch (err) {
-      toast.error("Something went wrong ❌");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to load cook");
     }
   };
+
+  fetchCook();
+}, [id]);
 
   return (
     <div className="relative min-h-screen bg-black text-white flex items-center justify-center px-6 overflow-hidden">
