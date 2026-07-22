@@ -15,7 +15,7 @@ export default function EditCook() {
 
   useEffect(() => {
     const fetchCook = async () => {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/cooks");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks");
       const data = await res.json();
       const cook = data.find((c) => c._id === id);
 

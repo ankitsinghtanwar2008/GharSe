@@ -35,7 +35,7 @@ router.push("/order-success");
 
 const handleOnlinePayment = async()=>{
 
-const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-order",{
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-order",{
 method:"POST",
 headers:{ "Content-Type":"application/json"},
 body:JSON.stringify({ amount: totalPrice })
