@@ -24,10 +24,13 @@ export default function AddCook() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cooks", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cooks`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error();
 
@@ -43,8 +46,8 @@ export default function AddCook() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black relative overflow-hidden">
-      
       <div className="absolute w-96 h-96 bg-pink-500 opacity-20 blur-3xl rounded-full top-10 left-10 animate-pulse"></div>
+
       <div className="absolute w-96 h-96 bg-blue-500 opacity-20 blur-3xl rounded-full bottom-10 right-10 animate-bounce"></div>
 
       <motion.div
@@ -58,7 +61,6 @@ export default function AddCook() {
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          
           <input
             type="text"
             placeholder="Enter cook name"
@@ -69,9 +71,11 @@ export default function AddCook() {
 
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/30 rounded-xl p-6 cursor-pointer hover:border-pink-400 transition group">
             <UploadCloud className="w-8 h-8 mb-2 text-gray-300 group-hover:text-pink-400 transition" />
+
             <span className="text-sm text-gray-300 group-hover:text-pink-400 transition">
               {image ? image.name : "Click to upload image"}
             </span>
+
             <input
               type="file"
               accept="image/png, image/jpeg"
@@ -91,7 +95,6 @@ export default function AddCook() {
           >
             {loading ? "Adding..." : "Add Cook"}
           </motion.button>
-
         </form>
       </motion.div>
     </div>
