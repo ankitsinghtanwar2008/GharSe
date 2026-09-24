@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -17,7 +18,10 @@ export default function Login() {
   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -25,33 +29,51 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      const data = await res.json();
+      if (!apiUrl) {
+        throw new Error("API URL is not configured");
+      }
+
+      const res = await fetch(`${apiUrl}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const text = await res.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = {
+          message: text || "Invalid server response",
+        };
+      }
+
+      console.log("Login status:", res.status);
+      console.log("Login response:", data);
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("isLoggedIn", "true");
 
-        router.push("/dashboard");
+        // Directly go to dashboard
+        router.replace("/dashboard");
       } else {
-        alert(data.message || "Login failed");
+        alert(data.error || data.message || "Login failed");
       }
-    } catch (err) {
-      alert("Server error. Try again.");
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.message || "Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -71,6 +93,7 @@ export default function Login() {
           type="text"
           name="phone"
           placeholder="Phone Number"
+          value={form.phone}
           onChange={handleChange}
           required
           className="w-full mb-5 p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none"
@@ -81,6 +104,7 @@ export default function Login() {
             type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
+            value={form.password}
             onChange={handleChange}
             required
             className="w-full p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none"
