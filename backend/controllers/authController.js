@@ -2,25 +2,35 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// =========================
 // Signup
+// =========================
 const signup = async (req, res) => {
   try {
     const { name, phone, password, role, address, location } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ phone });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+    // Check required fields
+    if (!name || !phone || !password) {
+      return res.status(400).json({
+        message: "Name, phone and password are required",
+      });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if user already exists
+    const existingUser = await User.findOne({ phone });
 
-    // Create user
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    // Password is hashed automatically by User model
+    // Do NOT hash it here because User.js has pre-save hashing
     const user = await User.create({
       name,
       phone,
-      password: hashedPassword,
+      password,
       role,
       address,
       location,
@@ -38,32 +48,57 @@ const signup = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Signup error:", error);
+
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
+// =========================
+// Login
+// =========================
 const login = async (req, res) => {
   try {
     const { phone, password } = req.body;
 
-    // Find user and explicitly select password
-    const user = await User.findOne({ phone }).select("+password");
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    // Check required fields
+    if (!phone || !password) {
+      return res.status(400).json({
+        message: "Phone and password are required",
+      });
     }
 
-    // Compare password using schema method
+    // Find user and explicitly select password
+    const user = await User.findOne({ phone }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
+    }
+
+    // Compare password
     const isMatch = await user.comparePassword(password);
+
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
     res.status(200).json({
@@ -80,8 +115,15 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
-module.exports = { signup, login };
+module.exports = {
+  signup,
+  login,
+};
